@@ -70,7 +70,6 @@ Next.js 15 · React 19 · TypeScript · Tailwind CSS · Client-side PDF (A4)
 ## ✦ ការដំឡើង
 
 ```bash
-cd payroll
 npm install
 npm run dev      # http://localhost:3000
 ```
@@ -133,7 +132,7 @@ npm run typecheck
 ## ✦ រចនាសម្ព័ន្ធកូដ
 
 ```
-payroll/
+.
 ├── app/
 │   ├── page.tsx                       # ផ្ទាំងគ្រប់គ្រង
 │   ├── employees/                     # គ្រប់គ្រងបុគ្គលិក
