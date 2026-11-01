@@ -1,0 +1,451 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   KhmerPayroll — global styles
+   ========================================================================== */
+
+:root {
+  --paper: #ffffff;
+  --ink: #1b2038;
+  --gold: #b8860b;
+  --form-border: #1b2038;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: "Kantumruy Pro", "Noto Sans Khmer", system-ui, -apple-system, sans-serif;
+  /* Khmer stacked consonants need extra line height */
+  line-height: 1.65;
+}
+
+/* Khmer text benefits from a slightly taller line box everywhere */
+.font-khmer,
+[lang="km"] {
+  font-family: "Kantumruy Pro", "Noto Sans Khmer", system-ui, sans-serif;
+  line-height: 1.75;
+}
+
+/* Tabular numbers in tables so columns align */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ---------- scrollbars ---------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8d1e6;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9daad1;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   A4 DOCUMENT — official form canvas
+   Everything inside .pdf-page is what lands in the exported PDF.
+   ========================================================================== */
+
+.pdf-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 12mm 12mm 10mm 12mm;
+  background: #fff;
+  color: var(--ink);
+  box-sizing: border-box;
+  position: relative;
+  font-family: "Kantumruy Pro", "Noto Sans Khmer", system-ui, sans-serif;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* Inner double rule that official Cambodian forms use */
+.pdf-page::before {
+  content: "";
+  position: absolute;
+  inset: 5mm;
+  border: 0.4mm solid #1b2038;
+  pointer-events: none;
+  z-index: 0;
+}
+.pdf-page::after {
+  content: "";
+  position: absolute;
+  inset: 6.1mm;
+  border: 0.15mm solid #9daad1;
+  pointer-events: none;
+  z-index: 0;
+}
+.pdf-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.pdf-page--plain::before,
+.pdf-page--plain::after {
+  display: none;
+}
+
+/* ---------- document typography ---------- */
+.doc-kicker {
+  font-size: 8.2pt;
+  letter-spacing: 0.02em;
+  color: #3d4a80;
+  line-height: 1.7;
+}
+.doc-title {
+  font-size: 15pt;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.01em;
+  line-height: 1.9;
+}
+.doc-subtitle {
+  font-size: 11pt;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.8;
+}
+.doc-section-title {
+  font-size: 9.5pt;
+  font-weight: 700;
+  background: #eef1f8;
+  border: 0.3mm solid #1b2038;
+  padding: 1.4mm 2.5mm;
+  line-height: 1.7;
+}
+.doc-label {
+  font-size: 8pt;
+  color: #3d4a80;
+  line-height: 1.6;
+}
+.doc-value {
+  font-size: 8.6pt;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.doc-small {
+  font-size: 7.2pt;
+  line-height: 1.6;
+}
+.doc-tiny {
+  font-size: 6.4pt;
+  line-height: 1.5;
+}
+
+/* ---------- official tables ---------- */
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8pt;
+  table-layout: fixed;
+}
+.doc-table th,
+.doc-table td {
+  border: 0.25mm solid #1b2038;
+  padding: 1.15mm 1.6mm;
+  vertical-align: middle;
+  line-height: 1.55;
+  word-break: break-word;
+}
+.doc-table thead th {
+  background: #e6eaf4;
+  font-weight: 700;
+  font-size: 7.8pt;
+  text-align: center;
+  line-height: 1.5;
+}
+.doc-table tfoot td {
+  background: #f4f6fb;
+  font-weight: 700;
+}
+.doc-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.doc-table .center {
+  text-align: center;
+}
+.doc-table--zebra tbody tr:nth-child(even) td {
+  background: #fafbfe;
+}
+.doc-table--dense th,
+.doc-table--dense td {
+  padding: 0.75mm 1.2mm;
+  font-size: 7pt;
+  line-height: 1.45;
+}
+
+/* ---------- info grid (label / value pairs) ---------- */
+.doc-grid {
+  display: grid;
+  border: 0.3mm solid #1b2038;
+}
+.doc-grid > div {
+  padding: 1.3mm 2.2mm;
+  border-right: 0.2mm solid #c8d1e6;
+  border-bottom: 0.2mm solid #c8d1e6;
+  font-size: 8pt;
+  line-height: 1.65;
+}
+
+/* ---------- signature blocks ---------- */
+.doc-sign {
+  text-align: center;
+  font-size: 8pt;
+  line-height: 1.8;
+}
+.doc-sign .role {
+  font-weight: 700;
+}
+.doc-sign .who {
+  min-height: 16mm;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1mm;
+  font-weight: 600;
+}
+.doc-sign .line {
+  border-top: 0.25mm dotted #1b2038;
+  margin: 0 2mm;
+  padding-top: 1mm;
+}
+
+/* faint under-print used on official payslips */
+.doc-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+.doc-watermark span {
+  font-size: 46pt;
+  font-weight: 700;
+  color: #1b2038;
+  opacity: 0.04;
+  transform: rotate(-28deg);
+  white-space: nowrap;
+}
+
+.doc-note-box {
+  border: 0.25mm dashed #6d7cb5;
+  padding: 1.8mm 2.5mm;
+  font-size: 7pt;
+  line-height: 1.7;
+  color: #333d68;
+}
+
+/* perforation guide for payslip tear-off */
+.doc-cut {
+  border-top: 0.2mm dashed #9daad1;
+  margin: 3mm 0;
+  position: relative;
+}
+.doc-cut::after {
+  content: "✂";
+  position: absolute;
+  right: 0;
+  top: -2.4mm;
+  font-size: 7pt;
+  color: #9daad1;
+  background: #fff;
+  padding: 0 1mm;
+}
+
+/* ==========================================================================
+   PRINT
+   ========================================================================== */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* hide app chrome while printing */
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+
+  .print-area {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .pdf-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .pdf-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+  tr,
+  td,
+  th {
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  /* keep the doc background colours (gold rule, grey headers) */
+  .doc-table thead th {
+    background: #e6eaf4 !important;
+  }
+  .doc-section-title {
+    background: #eef1f8 !important;
+  }
+}
+
+/* Screen presentation of the paper stack */
+.paper-stage {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(27, 32, 56, 0.08) 1px, transparent 0) 0 0 / 18px 18px,
+    #eef1f8;
+}
+
+.paper-shadow {
+  box-shadow:
+    0 1px 3px rgba(17, 21, 39, 0.12),
+    0 24px 48px -24px rgba(17, 21, 39, 0.35);
+}
+
+/* utility: hide the number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.22s ease-out both;
+}
+
+/* ==========================================================================
+   LANDSCAPE DOCUMENTS
+   Payroll register / attendance sheets are 297×210 mm. html2canvas captures
+   the element's real pixel box, so the PDF page must match this ratio.
+   ========================================================================== */
+.pdf-page--landscape {
+  width: 297mm;
+  min-height: 210mm;
+  padding: 9mm 10mm 8mm 10mm;
+}
+.pdf-page--landscape::before {
+  inset: 4mm;
+}
+.pdf-page--landscape::after {
+  inset: 5mm;
+}
+
+/* Wide tables should never be clipped by the page box */
+.pdf-page table {
+  page-break-inside: auto;
+}
+
+/* Zebra striping stays legible in grayscale printing */
+@media print {
+  .doc-table--zebra tbody tr:nth-child(even) td {
+    background: #fafbfe !important;
+  }
+}
+
+/* ==========================================================================
+   PRINT — flatten the paper stage so only the A4 pages hit the printer
+   ========================================================================== */
+@media print {
+  .paper-stage {
+    background: #fff !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+  #paper-stage {
+    gap: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+  #paper-stage > * {
+    transform: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  .paper-shadow {
+    box-shadow: none !important;
+  }
+  /* landscape documents need a landscape page box */
+  .pdf-page--landscape {
+    width: 297mm !important;
+  }
+  .doc-note-box {
+    border-color: #9daad1 !important;
+  }
+  a[href]::after {
+    content: "" !important;
+  }
+}
+
+@page landscape {
+  size: A4 landscape;
+  margin: 0;
+}
