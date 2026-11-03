@@ -30,6 +30,19 @@ export const positions: Position[] = [
   { id: "pos_sale", code: "SAL", nameKh: "មន្ត្រីលក់", nameEn: "Sales Officer", level: 2, minSalary: 500_000, maxSalary: 1_400_000 },
   { id: "pos_opr", code: "OPR", nameKh: "កម្មករផលិតកម្ម", nameEn: "Production Operator", level: 1, minSalary: 420_000, maxSalary: 780_000 },
   { id: "pos_drv", code: "DRV", nameKh: "អ្នកបើកបរ", nameEn: "Driver", level: 1, minSalary: 400_000, maxSalary: 700_000 },
+  { id: "pos_sacc", code: "SACC", nameKh: "គណនេយ្យករជាន់ខ្ពស់", nameEn: "Senior Accountant", level: 4, minSalary: 1_200_000, maxSalary: 2_500_000 },
+  { id: "pos_qa", code: "QA", nameKh: "អ្នកត្រួតពិនិត្យគុណភាព", nameEn: "Quality Assurance", level: 2, minSalary: 500_000, maxSalary: 1_200_000 },
+  { id: "pos_dsg", code: "DSG", nameKh: "អ្នករចនាក្រាហ្វិក", nameEn: "Graphic Designer", level: 2, minSalary: 480_000, maxSalary: 1_300_000 },
+  { id: "pos_mktmgr", code: "MMG", nameKh: "ប្រធានទីផ្សារ", nameEn: "Marketing Manager", level: 5, minSalary: 2_200_000, maxSalary: 5_000_000 },
+  { id: "pos_mkt", code: "MKT", nameKh: "មន្ត្រីទីផ្សារ", nameEn: "Marketing Officer", level: 2, minSalary: 450_000, maxSalary: 1_100_000 },
+  { id: "pos_whk", code: "WHK", nameKh: "អ្នករក្សាទំនិញ", nameEn: "Warehouse Keeper", level: 1, minSalary: 400_000, maxSalary: 720_000 },
+  { id: "pos_grd", code: "GRD", nameKh: "អ្នកការពារ", nameEn: "Security Guard", level: 1, minSalary: 380_000, maxSalary: 650_000 },
+  { id: "pos_rec", code: "REC", nameKh: "អ្នកទទួលទូរស័ព្ទ", nameEn: "Receptionist", level: 1, minSalary: 380_000, maxSalary: 700_000 },
+  { id: "pos_adm", code: "ADM", nameKh: "មន្ត្រីរដ្ឋបាល", nameEn: "Admin Officer", level: 2, minSalary: 450_000, maxSalary: 1_000_000 },
+  { id: "pos_hra", code: "HRA", nameKh: "ជំនួយការមន្ត្រីធនធានមនុស្ស", nameEn: "HR Assistant", level: 2, minSalary: 420_000, maxSalary: 900_000 },
+  { id: "pos_salmgr", code: "SMG", nameKh: "ប្រធានលក់", nameEn: "Sales Manager", level: 5, minSalary: 2_000_000, maxSalary: 4_500_000 },
+  { id: "pos_mec", code: "MEC", nameKh: "ជាងជួសជុល", nameEn: "Mechanic", level: 2, minSalary: 500_000, maxSalary: 1_100_000 },
+  { id: "pos_cln", code: "CLN", nameKh: "អ្នកសម្អាត", nameEn: "Cleaner", level: 1, minSalary: 350_000, maxSalary: 600_000 },
 ];
 
 const A = (

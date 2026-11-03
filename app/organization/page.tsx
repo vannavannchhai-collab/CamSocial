@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Building2, Users, Wallet, Plus, ChevronRight, Briefcase, TrendingUp,
-  UserCheck, Layers, Search,
+  UserCheck, Layers, Search, Pencil, Trash2, FileDown,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
+import type { Position } from "@/lib/types";
 import {
   Avatar, Badge, Button, Card, CardHeader, EmptyState, Input, Label,
   Modal, Stat, Table, Td, Th,
@@ -16,12 +18,16 @@ import { exportCsv } from "@/lib/pdf/export";
 
 export default function OrganizationPage() {
   const {
-    departments, positions, employees, addDepartment, addPosition, toast,
+    departments, positions, employees, addDepartment, addPosition,
+    updatePosition, removePosition, toast,
   } = useStore();
 
   const [showDept, setShowDept] = useState(false);
   const [showPos, setShowPos] = useState(false);
+  const [editingPos, setEditingPos] = useState<Position | null>(null);
+  const [deletingPos, setDeletingPos] = useState<Position | null>(null);
   const [q, setQ] = useState("");
+  const [pq, setPq] = useState("");
   const [expanded, setExpanded] = useState<string | null>(departments[0]?.id ?? null);
 
   const active = employees.filter((e) => e.status !== "resigned" && e.status !== "terminated");
@@ -41,11 +47,15 @@ export default function OrganizationPage() {
 
   const posStats = useMemo(
     () =>
-      positions.map((p) => {
-        const holders = active.filter((e) => e.positionId === p.id);
-        return { p, holders };
-      }),
-    [positions, active]
+      positions
+        .filter((p) =>
+          `${p.code} ${p.nameKh} ${p.nameEn}`.toLowerCase().includes(pq.toLowerCase())
+        )
+        .map((p) => {
+          const holders = active.filter((e) => e.positionId === p.id);
+          return { p, holders };
+        }),
+    [positions, active, pq]
   );
 
   const totalPayroll = deptStats.reduce((s, x) => s + x.total, 0);
@@ -64,6 +74,12 @@ export default function OrganizationPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/forms/org-structure"
+            className="inline-flex h-8 select-none items-center justify-center gap-1.5 rounded-lg border border-ink-300 bg-white px-3 text-xs font-semibold text-ink-800 transition-all hover:border-ink-400 hover:bg-ink-50"
+          >
+            <FileDown size={14} /> នាំចេញ PDF
+          </Link>
           <Button variant="outline" size="sm" onClick={() => setShowPos(true)}>
             <Briefcase size={14} /> មុខតំណែងថ្មី
           </Button>
@@ -170,6 +186,12 @@ export default function OrganizationPage() {
           title="មុខតំណែង និងជួរប្រាក់ខែ"
           subtitle="កម្រិតថ្នាក់ ១–៦ · ជួរប្រាក់ខែអប្បបរមា–អតិបរមា"
           icon={<Briefcase size={15} />}
+          action={
+            <div className="relative">
+              <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-ink-400" />
+              <Input value={pq} onChange={(e) => setPq(e.target.value)} placeholder="ស្វែងរក…" className="h-7 w-40 pl-7 text-[11px]" />
+            </div>
+          }
         />
         <Table>
           <thead>
@@ -180,6 +202,7 @@ export default function OrganizationPage() {
               <Th align="center">អ្នកកាន់តំណែង</Th>
               <Th align="right">ប្រាក់ខែសរុប</Th>
               <Th align="center">ស្ថានភាពជួរ</Th>
+              <Th align="center">សកម្មភាព</Th>
             </tr>
           </thead>
           <tbody>
@@ -213,15 +236,64 @@ export default function OrganizationPage() {
                       <Badge tone="success">ត្រឹមត្រូវ</Badge>
                     )}
                   </Td>
+                  <Td align="center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => setEditingPos(p)}
+                        className="grid h-7 w-7 place-items-center rounded-md text-ink-500 ring-1 ring-ink-200 hover:bg-ink-50 hover:text-ink-900"
+                        title="កែប្រែ"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                      <button
+                        onClick={() => setDeletingPos(p)}
+                        disabled={holders.length > 0}
+                        className="grid h-7 w-7 place-items-center rounded-md text-rose-500 ring-1 ring-ink-200 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        title={holders.length > 0 ? "មានអ្នកកាន់តំណែងនេះ" : "លុប"}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </Td>
                 </tr>
               );
             })}
+            {posStats.length === 0 && (
+              <tr><Td colSpan={7}><p className="py-6 text-center text-[11px] text-ink-400">មិនមានលទ្ធផល</p></Td></tr>
+            )}
           </tbody>
         </Table>
       </Card>
 
       <NewDeptModal open={showDept} onClose={() => setShowDept(false)} onCreate={(d) => { addDepartment(d); toast({ title: "បានបង្កើតដេប៉ាតឺមង់", tone: "success" }); }} />
-      <NewPosModal open={showPos} onClose={() => setShowPos(false)} onCreate={(p) => { addPosition(p); toast({ title: "បានបង្កើតមុខតំណែង", tone: "success" }); }} />
+      <PositionModal
+        open={showPos || editingPos !== null}
+        initial={editingPos ?? undefined}
+        onClose={() => { setShowPos(false); setEditingPos(null); }}
+        onSubmit={(p) => {
+          if (editingPos) {
+            updatePosition(editingPos.id, p);
+            toast({ title: "បានកែប្រែមុខតំណែង", tone: "success" });
+          } else {
+            addPosition({ id: uid("pos"), ...p } as Position);
+            toast({ title: "បានបង្កើតមុខតំណែង", tone: "success" });
+          }
+          setShowPos(false);
+          setEditingPos(null);
+        }}
+      />
+      <ConfirmDeletePos
+        position={deletingPos}
+        holders={deletingPos ? active.filter((e) => e.positionId === deletingPos.id).length : 0}
+        onClose={() => setDeletingPos(null)}
+        onConfirm={() => {
+          if (deletingPos) {
+            removePosition(deletingPos.id);
+            toast({ title: "បានលុបមុខតំណែង", tone: "info" });
+          }
+          setDeletingPos(null);
+        }}
+      />
     </div>
   );
 }
@@ -291,7 +363,14 @@ function NewDeptModal({ open, onClose, onCreate }: { open: boolean; onClose: () 
   );
 }
 
-function NewPosModal({ open, onClose, onCreate }: { open: boolean; onClose: () => void; onCreate: (p: any) => void }) {
+function PositionModal({
+  open, initial, onClose, onSubmit,
+}: {
+  open: boolean;
+  initial?: Position;
+  onClose: () => void;
+  onSubmit: (p: Omit<Position, "id">) => void;
+}) {
   const [code, setCode] = useState("");
   const [nameKh, setNameKh] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -299,25 +378,41 @@ function NewPosModal({ open, onClose, onCreate }: { open: boolean; onClose: () =
   const [min, setMin] = useState(500_000);
   const [max, setMax] = useState(1_500_000);
 
+  // sync when opening for a different position
+  React.useEffect(() => {
+    if (open) {
+      setCode(initial?.code ?? "");
+      setNameKh(initial?.nameKh ?? "");
+      setNameEn(initial?.nameEn ?? "");
+      setLevel(initial?.level ?? 2);
+      setMin(initial?.minSalary ?? 500_000);
+      setMax(initial?.maxSalary ?? 1_500_000);
+    }
+  }, [open, initial]);
+
+  const invalid = !code || !nameKh || max < min;
+
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title="បង្កើតមុខតំណែងថ្មី"
+      title={initial ? "កែប្រែមុខតំណែង" : "បង្កើតមុខតំណែងថ្មី"}
       size="sm"
       footer={
         <>
           <Button variant="outline" size="sm" onClick={onClose}>បោះបង់</Button>
           <Button
             size="sm"
-            disabled={!code || !nameKh}
+            disabled={invalid}
             onClick={() => {
-              onCreate({ id: uid("pos"), code: code.toUpperCase(), nameKh, nameEn: nameEn || nameKh, level, minSalary: min, maxSalary: max });
-              setCode(""); setNameKh(""); setNameEn("");
-              onClose();
+              onSubmit({
+                code: code.toUpperCase(), nameKh, nameEn: nameEn || nameKh,
+                level: Math.min(6, Math.max(1, level)),
+                minSalary: min, maxSalary: max,
+              });
             }}
           >
-            បង្កើត
+            {initial ? "រក្សាទុក" : "បង្កើត"}
           </Button>
         </>
       }
@@ -346,8 +441,44 @@ function NewPosModal({ open, onClose, onCreate }: { open: boolean; onClose: () =
         <div>
           <Label>អតិបរមា (៛)</Label>
           <Input type="number" value={max} onChange={(e) => setMax(Number(e.target.value))} />
+          {max < min && <p className="mt-1 text-[10px] text-rose-500">អតិបរមาต្រូវធំជាងអប្បបរមា</p>}
         </div>
       </div>
+    </Modal>
+  );
+}
+
+function ConfirmDeletePos({
+  position, holders, onClose, onConfirm,
+}: {
+  position: Position | null;
+  holders: number;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Modal
+      open={position !== null}
+      onClose={onClose}
+      title="លុបមុខតំណែង"
+      size="sm"
+      footer={
+        <>
+          <Button variant="outline" size="sm" onClick={onClose}>បោះបង់</Button>
+          <Button variant="danger" size="sm" disabled={holders > 0} onClick={onConfirm}>លុប</Button>
+        </>
+      }
+    >
+      {position && (
+        <p className="text-xs leading-relaxed text-ink-600">
+          តើអ្នកពិតជាចង់លុបមុខតំណែង <b className="text-ink-900">{position.nameKh}</b> ({position.code})?
+          {holders > 0 && (
+            <span className="mt-1 block text-rose-600">
+              មានអ្នកកាន់តំណែងនេះ {holders} នាក់ — សូមផ្លាស់ប្តូរមុខតំណែងរបស់ពួកគេជាមុនសិន។
+            </span>
+          )}
+        </p>
+      )}
     </Modal>
   );
 }

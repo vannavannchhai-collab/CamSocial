@@ -91,6 +91,17 @@ const FORMS = [
     badge: "វត្តមាន",
   },
   {
+    href: "/forms/org-structure",
+    code: "ORG-01",
+    title: "បញ្ជីរចនាសម្ព័ន្ធអង្គភាព និងមុខតំណែង",
+    titleEn: "Org Structure & Position List",
+    desc: "បញ្ជីដេប៉ាតឺមង់ និងមុខតំណែងទាំងអស់ រួមកម្រិត និងជួроб្រាក់ខែ — ទម្រង់ស្តង់ដារ A4 បញ្ឈរ។",
+    icon: Building2,
+    tone: "bg-indigo-100 text-indigo-700",
+    pages: "ច្រើនទំព័រ",
+    badge: "រចនាសម្ព័ន្ធ",
+  },
+  {
     href: "/forms/contract",
     code: "CTR-01",
     title: "កិច្ចសន្យាការងារ",
