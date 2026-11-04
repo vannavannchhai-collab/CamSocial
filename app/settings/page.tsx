@@ -22,7 +22,7 @@ const TABS = [
 ] as const;
 
 export default function SettingsPage() {
-  const { settings, updateSettings, resetDemo, employees, payslips, runs, toast, departments } = useStore();
+  const { settings, updateSettings, clearAllData, employees, payslips, runs, toast, departments } = useStore();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("company");
   const [confirmReset, setConfirmReset] = useState(false);
   const [draft, setDraft] = useState(settings);
@@ -361,11 +361,11 @@ export default function SettingsPage() {
             <CardHeader title="តំបន់គ្រោះថ្នាក់" subtitle="សកម្មភាពមិនអាចត្រឡប់វិញ" icon={<RotateCcw size={15} />} />
             <div className="p-4">
               <p className="text-[11px] leading-relaxed text-ink-600">
-                ការកំណត់ទិន្នន័យឡើងវិញនឹងលុបបុគ្គលិក វដ្តបៀវត្សរ៍ និងប័ណ្ណទាំងអស់
-                ហើយជំនួសដោយទិន្នន័យគំរូដើម។ សូមនាំចេញទិន្នន័យបម្រុងជាមុន។
+                ការសម្អាតទិន្នន័យនឹងលុបបុគ្គលិក ដេប៉ាតឺមង់ មុខតំណែង វដ្តបៀវត្សរ៍ និងប័ណ្ណទាំងអស់ចេញ។
+                សូមនាំចេញទិន្នន័យបម្រុងជាមុន។
               </p>
               <Button variant="danger" size="sm" className="mt-3 w-full" onClick={() => setConfirmReset(true)}>
-                <RotateCcw size={14} /> កំណត់ទិន្នន័យគំរូឡើងវិញ
+                <RotateCcw size={14} /> សម្អាតទិន្នន័យទាំងអស់
               </Button>
             </div>
           </Card>
@@ -375,14 +375,14 @@ export default function SettingsPage() {
       <Modal
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
-        title="កំណត់ទិន្នន័យឡើងវិញ?"
-        subtitle="បុគ្គលិក វដ្ត និងប័ណ្ណទាំងអស់នឹងត្រូវលុប"
+        title="សម្អាតទិន្នន័យទាំងអស់?"
+        subtitle="បុគ្គលិក ដេប៉ាតឺមង់ មុខតំណែង វដ្ត និងប័ណ្ណទាំងអស់នឹងត្រូវលុប"
         size="sm"
         footer={
           <>
             <Button variant="outline" size="sm" onClick={() => setConfirmReset(false)}>បោះបង់</Button>
-            <Button variant="danger" size="sm" onClick={() => { resetDemo(); setConfirmReset(false); setDraft(settings); }}>
-              បញ្ជាក់ការកំណត់ឡើងវិញ
+            <Button variant="danger" size="sm" onClick={() => { clearAllData(); setConfirmReset(false); setDraft(settings); }}>
+              បញ្ជាក់ការសម្អាត
             </Button>
           </>
         }
