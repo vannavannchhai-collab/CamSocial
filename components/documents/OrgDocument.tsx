@@ -46,6 +46,13 @@ export function OrgStructureDocument({
   }
   if (posPages.length === 0) posPages.push([]);
 
+  const posHolders = (p: Position) => active.filter((e) => e.positionId === p.id);
+  const totalHolders = posSorted.reduce((s, p) => s + posHolders(p).length, 0);
+  const totalPosSalary = posSorted.reduce(
+    (s, p) => s + posHolders(p).reduce((a, e) => a + e.baseSalary, 0),
+    0
+  );
+
   const pageCount = 1 + posPages.length; // page 1 = departments, rest = positions
   const today = formatDateKh(new Date().toISOString().slice(0, 10));
 
@@ -171,6 +178,15 @@ export function OrgStructureDocument({
             );
           })}
         </tbody>
+        {pageIdx === posPages.length - 1 && (
+          <tfoot>
+            <tr>
+              <td colSpan={6} className="font-bold">សរុបមុខតំណែងទាំងអស់ ({positions.length})</td>
+              <td className="center num font-bold">{totalHolders}</td>
+              <td className="num font-bold">{amt(totalPosSalary)}</td>
+            </tr>
+          </tfoot>
+        )}
       </table>
 
       <Signatures blocks={3} />
