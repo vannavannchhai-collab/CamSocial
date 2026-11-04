@@ -14,6 +14,7 @@ import { monthYearKh, fullNameKh } from "@/lib/format";
 export default function BatchPayslipsPage() {
   const { employees, payslips, activeRun, settings, departments, positions, departmentById, positionById, runs } = useStore();
   const [deptFilter, setDeptFilter] = useState<string>("all");
+  const [posFilter, setPosFilter] = useState<string>("all");
   const [layout, setLayout] = useState<"two" | "one">("two");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,6 +24,7 @@ export default function BatchPayslipsPage() {
     const slips = payslips.filter((s) => s.runId === activeRun.id);
     let r = buildRows(slips, employees, departments, positions);
     if (deptFilter !== "all") r = r.filter((x) => x.employee.departmentId === deptFilter);
+    if (posFilter !== "all") r = r.filter((x) => x.employee.positionId === posFilter);
     if (q.trim()) {
       const t = q.toLowerCase();
       r = r.filter(
@@ -33,7 +35,7 @@ export default function BatchPayslipsPage() {
       );
     }
     return r;
-  }, [payslips, activeRun, employees, departments, positions, deptFilter, q]);
+  }, [payslips, activeRun, employees, departments, positions, deptFilter, posFilter, q]);
 
   const handleExportAll = async () => {
     setBusy(true);
@@ -88,6 +90,20 @@ export default function BatchPayslipsPage() {
                 {d.nameKh}
               </option>
             ))}
+          </Select>
+          <Select
+            value={posFilter}
+            onChange={(e) => setPosFilter(e.target.value)}
+            className="h-8 w-52 text-xs"
+          >
+            <option value="all">គ្រប់មុខតំណែង ({positions.length})</option>
+            {[...positions]
+              .sort((a, b) => b.level - a.level || a.code.localeCompare(b.code))
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  L{p.level} · {p.nameKh}
+                </option>
+              ))}
           </Select>
           <div className="flex items-center gap-0.5 rounded-lg bg-ink-50 p-0.5 ring-1 ring-ink-200">
             <button

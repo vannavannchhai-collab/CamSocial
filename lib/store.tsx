@@ -86,7 +86,11 @@ interface StoreValue extends PersistedState {
   // settings / org
   updateSettings: (patch: Partial<PayrollSettings>) => void;
   addDepartment: (d: Department) => void;
+  updateDepartment: (id: string, patch: Partial<Department>) => void;
+  removeDepartment: (id: string) => void;
   addPosition: (p: Position) => void;
+  updatePosition: (id: string, patch: Partial<Position>) => void;
+  removePosition: (id: string) => void;
 
   // attendance / leave
   attendanceSummary: (employeeId: string, runId?: string) => AttendanceSummary;
@@ -342,9 +346,43 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setState((st) => ({ ...st, departments: [...st.departments, d] }));
   }, []);
 
+  const updateDepartment = useCallback((id: string, patch: Partial<Department>) => {
+    setState((st) => ({
+      ...st,
+      departments: st.departments.map((d) => (d.id === id ? { ...d, ...patch } : d)),
+    }));
+  }, []);
+
+  const removeDepartment = useCallback(
+    (id: string) => {
+      setState((st) => {
+        if (st.employees.some((e) => e.departmentId === id)) return st; // in use
+        return { ...st, departments: st.departments.filter((d) => d.id !== id) };
+      });
+    },
+    []
+  );
+
   const addPosition = useCallback((p: Position) => {
     setState((st) => ({ ...st, positions: [...st.positions, p] }));
   }, []);
+
+  const updatePosition = useCallback((id: string, patch: Partial<Position>) => {
+    setState((st) => ({
+      ...st,
+      positions: st.positions.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    }));
+  }, []);
+
+  const removePosition = useCallback(
+    (id: string) => {
+      setState((st) => {
+        if (st.employees.some((e) => e.positionId === id)) return st; // in use
+        return { ...st, positions: st.positions.filter((p) => p.id !== id) };
+      });
+    },
+    []
+  );
 
   const addLeave = useCallback(
     (l: LeaveRequest) => {
@@ -424,7 +462,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setPayslips,
     updateSettings,
     addDepartment,
+    updateDepartment,
+    removeDepartment,
     addPosition,
+    updatePosition,
+    removePosition,
     attendanceSummary,
     addLeave,
     reviewLeave,

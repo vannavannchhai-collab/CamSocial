@@ -31,6 +31,7 @@ export default function EmployeesPage() {
 
   const [q, setQ] = useState("");
   const [dept, setDept] = useState("all");
+  const [pos, setPos] = useState("all");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState<SortKey>("code");
   const [dir, setDir] = useState<"asc" | "desc">("asc");
@@ -50,6 +51,7 @@ export default function EmployeesPage() {
       );
     }
     if (dept !== "all") list = list.filter((e) => e.departmentId === dept);
+    if (pos !== "all") list = list.filter((e) => e.positionId === pos);
     if (status !== "all") list = list.filter((e) => e.status === status);
 
     list.sort((a, b) => {
@@ -61,7 +63,7 @@ export default function EmployeesPage() {
       return dir === "asc" ? r : -r;
     });
     return list;
-  }, [employees, q, dept, status, sort, dir]);
+  }, [employees, q, dept, pos, status, sort, dir]);
 
   const active = employees.filter((e) => e.status === "active" || e.status === "probation");
   const totalSalary = active.reduce((s, e) => s + e.baseSalary + e.allowances.reduce((a, x) => a + x.amount, 0), 0);
@@ -140,6 +142,16 @@ export default function EmployeesPage() {
               <option key={d.id} value={d.id}>{d.nameKh}</option>
             ))}
           </Select>
+          <Select value={pos} onChange={(e) => setPos(e.target.value)} className="h-9 w-48 text-xs">
+            <option value="all">គ្រប់មុខតំណែង ({positions.length})</option>
+            {[...positions]
+              .sort((a, b) => b.level - a.level || a.code.localeCompare(b.code))
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  L{p.level} · {p.nameKh}
+                </option>
+              ))}
+          </Select>
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="h-9 w-36 text-xs">
             <option value="all">គ្រប់ស្ថានភាព</option>
             <option value="active">សកម្ម</option>
@@ -206,7 +218,17 @@ export default function EmployeesPage() {
                     </Td>
                     <Td>
                       <p className="text-[11px] font-medium text-ink-700">{d?.nameKh}</p>
-                      <p className="text-[10px] text-ink-400">{p?.nameKh}</p>
+                      <p className="flex items-center gap-1 text-[10px] text-ink-400">
+                        {p && (
+                          <Badge
+                            tone={p.level >= 5 ? "violet" : p.level >= 3 ? "info" : "neutral"}
+                            className="!px-1 !py-0 !text-[9px]"
+                          >
+                            L{p.level}
+                          </Badge>
+                        )}
+                        {p?.nameKh}
+                      </p>
                     </Td>
                     <Td align="right">
                       <p className="text-[12px] font-bold text-ink-900">{KHR(e.baseSalary)}</p>
