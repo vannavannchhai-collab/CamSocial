@@ -6,7 +6,16 @@ import {
   PdfPage, NationalHeader, CompanyBlock, FormReference, DocTitle,
   SectionTitle, Signatures, DocFooter, amt,
 } from "./DocFrame";
-import { KHR, monthYearKh, formatDateKh } from "@/lib/format";
+import { KHR, monthYearKh, formatDateKh, toKhmerDigits } from "@/lib/format";
+
+const LEVEL_COLORS: Record<number, string> = {
+  6: "#6d28d9",
+  5: "#7c3aed",
+  4: "#2563eb",
+  3: "#0e7490",
+  2: "#0f766e",
+  1: "#57534e",
+};
 
 // ============================================================================
 // បញ្ជីរចនាសម្ព័ន្ធអង្គភាព និងមុខតំណែង / ORG STRUCTURE & POSITION LIST
@@ -91,7 +100,7 @@ export function OrgStructureDocument({
         <tbody>
           {deptRows.map(({ d, count, total }, i) => (
             <tr key={d.id}>
-              <td className="center">{i + 1}</td>
+              <td className="center">{toKhmerDigits(i + 1)}</td>
               <td className="center font-semibold">{d.code}</td>
               <td>{d.nameKh}</td>
               <td className="text-ink-500">{d.nameEn}</td>
@@ -110,10 +119,24 @@ export function OrgStructureDocument({
       </table>
 
       <SectionTitle letter="ខ">រចនាសម្ព័ន្ធតាមកម្រិត</SectionTitle>
-      <p className="doc-small mt-1.5 text-ink-600">
-        កម្រិត 6 — នיהולកំពូល · កម្រិត 5 — ប្រធានដេប៉ាតឺម៉ង់ · កម្រិត 4 — អ្នកគ្រប់គ្រងផ្នែក ·
-        កម្រិត 3 — បុគ្គលិកជំនាញ · កម្រិត 2 — បុគ្គលិកទូទៅ · កម្រិត 1 — កម្មករ
-      </p>
+      <div className="mt-1.5 flex flex-wrap gap-1">
+        {[
+          [6, "នיהולកំពូល"],
+          [5, "ប្រធានដេប៉ាតឺម៉ង់"],
+          [4, "អ្នកគ្រប់គ្រងផ្នែក"],
+          [3, "បុគ្គលិកជំនាញ"],
+          [2, "បុគ្គលិកទូទៅ"],
+          [1, "កម្មករ"],
+        ].map(([lv, label]) => (
+          <span
+            key={lv as number}
+            className="doc-tiny inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-semibold text-white"
+            style={{ background: LEVEL_COLORS[lv as number] }}
+          >
+            កម្រិត {toKhmerDigits(lv as number)} · {label}
+          </span>
+        ))}
+      </div>
 
       <Signatures blocks={3} />
       <DocFooter
@@ -166,11 +189,18 @@ export function OrgStructureDocument({
             const sum = holders.reduce((s, e) => s + e.baseSalary, 0);
             return (
               <tr key={p.id}>
-                <td className="center">{pageIdx * ROWS_PER_PAGE + i + 1}</td>
+                <td className="center">{toKhmerDigits(pageIdx * ROWS_PER_PAGE + i + 1)}</td>
                 <td className="center font-semibold">{p.code}</td>
                 <td>{p.nameKh}</td>
                 <td className="text-ink-500">{p.nameEn}</td>
-                <td className="center">L{p.level}</td>
+                <td className="center">
+                  <span
+                    className="inline-block rounded-sm px-1 py-px text-white"
+                    style={{ background: LEVEL_COLORS[p.level] ?? "#57534e", fontSize: "6.6pt", fontWeight: 700 }}
+                  >
+                    L{toKhmerDigits(p.level)}
+                  </span>
+                </td>
                 <td className="num">{KHR(p.minSalary)} – {KHR(p.maxSalary)}</td>
                 <td className="center num">{holders.length}</td>
                 <td className="num">{holders.length ? amt(sum) : "—"}</td>

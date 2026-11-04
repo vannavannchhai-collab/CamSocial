@@ -25,21 +25,13 @@ import type {
   Payslip,
   Position,
 } from "./types";
-import {
-  attendanceSummaryFor,
-  departments as seedDepts,
-  positions as seedPositions,
-  seedEmployees,
-  seedLeaves,
-  seedRuns,
-  seedSettings,
-} from "./seed";
 import { DEFAULT_SETTINGS } from "./payroll/cambodia";
 import { calculatePayslip } from "./payroll/calc";
+import { attendanceSummaryFor } from "./payroll/attendance";
 import type { AttendanceSummary } from "./payroll/calc";
 import { uid } from "./format";
 
-const STORAGE_KEY = "khmerpayroll.v1";
+const STORAGE_KEY = "khmerpayroll.v2";
 
 export interface Toast {
   id: string;
@@ -101,56 +93,25 @@ interface StoreValue extends PersistedState {
   employeeById: (id: string) => Employee | undefined;
   departmentById: (id: string) => Department | undefined;
   positionById: (id: string) => Position | undefined;
-  resetDemo: () => void;
+  clearAllData: () => void;
   setAdvances: (v: Record<string, number>) => void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
 
 function buildInitial(): PersistedState {
-  const runs = seedRuns;
-  const payslips: Payslip[] = [];
-  const advances: Record<string, number> = {};
-
-  // deterministic advances for a few employees
-  seedEmployees.forEach((e, i) => {
-    if (i % 5 === 2) advances[e.id] = Math.round((e.baseSalary * 0.1) / 1000) * 1000;
-  });
-
-  runs.forEach((run) => {
-    seedEmployees
-      .filter((e) => e.status !== "resigned" && e.status !== "terminated")
-      .forEach((e) => {
-        const att = attendanceSummaryFor(e.id, run, seedEmployees);
-        const months = Math.max(
-          0,
-          (run.periodYear - new Date(e.hireDate).getFullYear()) * 12 +
-            (run.periodMonth - (new Date(e.hireDate).getMonth() + 1))
-        );
-        const isSeniorityMonth = run.periodMonth === 6 || run.periodMonth === 12;
-        const slip = calculatePayslip({
-          employee: e,
-          run,
-          settings: { ...DEFAULT_SETTINGS },
-          attendance: att,
-          advanceRepayment: advances[e.id],
-          includeSeniority: isSeniorityMonth && e.employmentType === "permanent" && run.periodMonth === 12,
-          monthsOfService: months,
-        });
-        payslips.push({ ...slip, runId: run.id });
-      });
-  });
-
+  // No demo data — the system starts completely empty so the company can
+  // enter its own departments, positions, employees and payroll runs.
   return {
-    employees: seedEmployees,
-    departments: seedDepts,
-    positions: seedPositions,
-    runs,
-    payslips,
+    employees: [],
+    departments: [],
+    positions: [],
+    runs: [],
+    payslips: [],
     attendance: [],
-    leaves: seedLeaves,
-    settings: { ...seedSettings },
-    advances,
+    leaves: [],
+    settings: { ...DEFAULT_SETTINGS },
+    advances: {},
   };
 }
 
@@ -235,7 +196,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return st.employees
         .filter((e) => e.status !== "resigned" && e.status !== "terminated")
         .map((e) => {
-          const att = attendanceSummaryFor(e.id, run, st.employees);
+          const att = attendanceSummaryFor(e.id, run, st.attendance);
           const months = Math.max(
             0,
             (run.periodYear - new Date(e.hireDate).getFullYear()) * 12 +
@@ -415,15 +376,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           overtimeWeekday: 0, overtimeRestDay: 0, overtimeHoliday: 0, totalOvertimeHours: 0,
         };
       }
-      return attendanceSummaryFor(employeeId, run, state.employees);
+      return attendanceSummaryFor(employeeId, run, state.attendance);
     },
     [state.runs, state.employees, activeRun]
   );
 
-  const resetDemo = useCallback(() => {
-    const fresh = buildInitial();
-    setState(fresh);
-    toast({ title: "បានកំណត់ទិន្នន័យគំរូឡើងវិញ", tone: "info" });
+  const clearAllData = useCallback(() => {
+    setState(buildInitial());
+    setActiveRunId("");
+    toast({ title: "បានសម្អាតទិន្នន័យទាំងអស់", description: "ប្រព័ន្ធចាប់ផ្តើមថ្មីដោយគ្មានទិន្នន័យ", tone: "info" });
   }, [toast]);
 
   const employeeById = useCallback(
@@ -473,7 +434,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     employeeById,
     departmentById,
     positionById,
-    resetDemo,
+    clearAllData,
     setAdvances,
   };
 

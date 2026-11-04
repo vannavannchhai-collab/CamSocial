@@ -42,6 +42,7 @@ export default function OrgStructurePage() {
         orientation="portrait"
         backHref="/organization"
         pageCount={pageCount}
+        scale={3.2}
         onCsv={onCsv}
         note="ទម្រង់ A4 បញ្ឈរ · ១៦ នាក់/ទំព័រ · មានសរុបទំព័រ និងសរុបរួម · បន្ថែមសេចក្តីសង្ខេបបង់ពន្ធនៅទំព័រចុងក្រោយ"
       />
